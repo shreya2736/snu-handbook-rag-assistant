@@ -2,7 +2,11 @@
 
 A RAG-based Q&A assistant over the Shiv Nadar University Chennai B.Tech Regulations 2021. Students can ask questions in plain English (attendance, grading, arrears, withdrawal, etc.) and get an answer with the source page and the exact passage it came from.
 
-![demo](screenshots/demo.png)
+<img width="940" height="525" alt="image" src="https://github.com/user-attachments/assets/37b9908c-dd23-4a54-aa51-1f922bb912e4" />
+
+<img width="940" height="494" alt="image" src="https://github.com/user-attachments/assets/6a60934f-3b90-41f5-9223-df59a451d55d" />
+
+<img width="940" height="366" alt="image" src="https://github.com/user-attachments/assets/291dddd1-52f3-46b4-a79d-027f042d7875" />
 
 ## Features
 - Semantic search over the regulations PDF, with page-level citations
@@ -52,13 +56,16 @@ Open http://127.0.0.1:5000
 ## Evaluation
 `python eval.py` runs 19 questions: 17 answerable from the regulations and 2 out-of-scope questions that should be refused. Expected answers were checked by hand against the PDF, and a response counts as correct if it contains the expected key fact.
 
+<img width="940" height="261" alt="image" src="https://github.com/user-attachments/assets/8a39965a-22d7-4179-89b3-7adfb7290bdf" />
+
+<img width="940" height="417" alt="image" src="https://github.com/user-attachments/assets/e36d7abc-bbe1-4c2c-94ed-f8730ce39e75" />
+
 **Result: 18/19 correct.**
 
 Improvements made after the first run, which scored 16/19 on the same questions :
 - Switched from page-by-page chunking to chunking across page boundaries, which fixed questions where a clause heading and its value fell on different pages.
 - Increased the number of retrieved chunks and tuned the distance threshold.
 - Added a prompt instruction not to merge separate categories (e.g. First Class vs First Class with Distinction).
-
 
 This is a small test set with keyword-based checking, so it is a sanity check rather than a rigorous benchmark.
 
