@@ -1,0 +1,6 @@
+chroma_db/
+.env
+data/
+venv/
+data/
+__pyache__/
