@@ -19,12 +19,28 @@ def download(name, url):
             f.write(r.content)
     return path
 
-def chunk_text(text):
-    chunks, start = [], 0
-    while start < len(text):
-        chunks.append(text[start:start + CHUNK_SIZE])
-        start += CHUNK_SIZE - OVERLAP
-    return chunks
+def extract_document(path):
+    """Join all pages into one text, remembering where each page starts."""
+    reader = PdfReader(path)
+    full_text, page_starts, empty_pages = "", [], 0
+    for page_no, page in enumerate(reader.pages, start=1):
+        text = " ".join((page.extract_text() or "").split())
+        if len(text) < 30:
+            empty_pages += 1
+            continue
+        page_starts.append((len(full_text), page_no))
+        full_text += text + " "
+    return full_text, page_starts, len(reader.pages), empty_pages
+
+def page_at(offset, page_starts):
+    """Page number on which the character at `offset` appears."""
+    page = page_starts[0][1]
+    for start_offset, page_no in page_starts:
+        if start_offset <= offset:
+            page = page_no
+        else:
+            break
+    return page
 
 def main():
     ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
@@ -43,20 +59,22 @@ def main():
         except Exception as e:
             print(f"Could not download {name}: {e}")
             continue
-        reader = PdfReader(path)
-        empty_pages = 0
-        for page_no, page in enumerate(reader.pages, start=1):
-            text = " ".join((page.extract_text() or "").split())
-            if len(text) < 30:
-                empty_pages += 1
-                continue
-            for i, chunk in enumerate(chunk_text(text)):
-                ids.append(f"{name}-p{page_no}-c{i}")
+
+        full_text, page_starts, n_pages, empty_pages = extract_document(path)
+        print(f"{name}: {n_pages} pages, {empty_pages} with no text")
+        if not page_starts or empty_pages > n_pages / 2:
+            print(f"  WARNING: '{name}' looks scanned. It needs OCR, so it is skipped.")
+            continue
+
+        start, i = 0, 0
+        while start < len(full_text):
+            chunk = full_text[start:start + CHUNK_SIZE].strip()
+            if chunk:
+                ids.append(f"{name}-c{i}")
                 docs.append(chunk)
-                metas.append({"source": name, "page": page_no})
-        print(f"{name}: {len(reader.pages)} pages, {empty_pages} with no text")
-        if empty_pages > len(reader.pages) / 2:
-            print(f"  WARNING: '{name}' looks scanned. It needs OCR, so it adds little right now.")
+                metas.append({"source": name, "page": page_at(start, page_starts)})
+                i += 1
+            start += CHUNK_SIZE - OVERLAP
 
     if not docs:
         print("No text extracted. Nothing to index.")

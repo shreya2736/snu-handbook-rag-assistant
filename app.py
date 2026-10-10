@@ -8,8 +8,8 @@ from chromadb.utils import embedding_functions
 load_dotenv()
 app = Flask(__name__)
 
-TOP_K = 4
-MAX_DISTANCE = 0.65   # cosine distance; higher = less similar. Tune using eval.py
+TOP_K = 6
+MAX_DISTANCE = 0.75   # cosine distance; higher = less similar. Tune using eval.py
 MODEL = "openai/gpt-oss-120b"
 
 ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
@@ -22,6 +22,7 @@ SYSTEM_PROMPT = (
     "using ONLY the provided context. If the context does not contain the answer, reply exactly: "
     "\"I couldn't find this in the provided documents.\" Do not use outside knowledge. "
     "Be concise and mention clause numbers when they appear in the context."
+    "If the context lists several categories or cases, answer for the specific one asked and do not merge them."
 )
 
 def answer_question(question):
