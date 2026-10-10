@@ -16,7 +16,7 @@ A RAG-based Q&A assistant over the Shiv Nadar University Chennai B.Tech Regulati
 - Evaluation script to measure answer accuracy
 
 ## Tech Stack
-Python, Flask, Sentence Transformers (all-MiniLM-L6-v2), ChromaDB, Groq API (<model name, e.g. openai/gpt-oss-120b>), HTML/CSS/JS
+Python, Flask, Sentence Transformers (all-MiniLM-L6-v2), ChromaDB, Groq API (model-openai/gpt-oss-120b), HTML/CSS/JS
 
 ## How It Works
 1. `ingest.py` downloads the PDF, extracts the text of all pages into one document, and splits it into overlapping chunks (800 characters, 150 overlap). Chunking across page boundaries keeps a clause heading together with its content. Each chunk is embedded and stored in a persistent ChromaDB collection along with the page where it starts.
